@@ -10,3 +10,6 @@ to make sure command prompt doesnt shut down as soon as program is executed,
 add this line just before return in main:
 
 system("pause");
+
+
+if not compiling, make sure command prompt is not already open

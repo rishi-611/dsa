@@ -1,4 +1,6 @@
 #include <iostream>
+#include <algorithm>
+#include <limits.h>
 using namespace std;
 
 class BstNode;
@@ -6,6 +8,9 @@ void insert(BstNode **root, int data);
 bool search(BstNode *root, int data);
 int findMax(BstNode *root);
 int findMin(BstNode *root);
+int getHeight(BstNode *root);
+void printInorder(BstNode *root);
+void printPreorder(BstNode *root);
 
 class BstNode
 {
@@ -21,6 +26,11 @@ public:
     friend bool search(BstNode *, int);
     friend int findMax(BstNode *root);
     friend int findMin(BstNode *root);
+    friend int getHeight(BstNode *root);
+    friend void printInorder(BstNode *root);
+    friend void printPreorder(BstNode *root);
+    friend void printPostorder(BstNode *root);
+
     int getData()
     {
         return data;
@@ -91,6 +101,48 @@ int findMin(BstNode *root)
     return root->data;
 }
 
+// returns height of tree (max distance from a leaf node)
+int getHeight(BstNode *root)
+{
+    // for a tree with only root, height is zero as no further traversal is required to reach a leaf node
+    // so for a null node, root will be -1
+    if (root == nullptr)
+        return -1;
+
+    // otherwise height will be one plus the height of the maximum of heights bw left and right subtrees
+    return (max(getHeight(root->right), getHeight(root->left)) + 1);
+}
+
+void printInorder(BstNode *root)
+{
+    if (root == nullptr)
+        return;
+
+    printInorder(root->left);
+    std::cout << root->data << " ";
+    printInorder(root->right);
+}
+
+void printPreorder(BstNode *root)
+{
+    if (root == nullptr)
+        return;
+
+    std::cout << root->data << " ";
+    printPreorder(root->left);
+    printPreorder(root->right);
+}
+
+void printPostorder(BstNode *root)
+{
+    if (root == nullptr)
+        return;
+
+    printPostorder(root->left);
+    printPostorder(root->right);
+    std::cout << root->data << " ";
+}
+
 int main()
 {
     // initialize an empty binary tree
@@ -103,6 +155,12 @@ int main()
     insert(&root, 7);
     insert(&root, 1);
 
+    // insert(&root, 1);
+    // insert(&root, 2);
+    // insert(&root, 3);
+    // insert(&root, 4);
+    // insert(&root, 5);
+
     cout << boolalpha << search(root, 7) << endl; // true
     cout << search(root, 3) << endl
          << endl; // false
@@ -111,6 +169,17 @@ int main()
 
     cout << "Minimum number in tree: " << findMin(root) << endl
          << endl; // 1
+
+    cout << "Height of tree: " << getHeight(root) << endl
+         << endl;
+
+    printInorder(root);
+    cout << endl;
+    printPreorder(root);
+    cout << endl;
+    printPostorder(root);
+    cout << endl;
+    cout << endl;
 
     system("pause");
     return 0;
