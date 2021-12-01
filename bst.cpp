@@ -1,5 +1,6 @@
 #include <iostream>
 #include <algorithm>
+#include <iomanip>
 #include <limits.h>
 #include <queue>
 using namespace std;
@@ -14,6 +15,8 @@ void printInorder(BstNode *root);
 void printPreorder(BstNode *root);
 void printLevelOrder(BstNode *root);
 void printLevHelper(BstNode *root, std::queue<BstNode *> q);
+bool isBst(BstNode *root);
+void inOrder(BstNode *root, vector<int> &v);
 
 class BstNode
 {
@@ -35,6 +38,8 @@ public:
     friend void printPostorder(BstNode *root);
     friend void printLevelOrder(BstNode *root);
     friend void printLevHelper(BstNode *root, std::queue<BstNode *> q);
+    friend bool isBst(BstNode *root);
+    friend void inOrder(BstNode *root, vector<int> &v);
 
     int getData()
     {
@@ -177,6 +182,32 @@ void printLevelOrder(BstNode *root)
     printLevHelper(root, q);
 }
 
+void inOrder(BstNode *root, vector<int> &v)
+{
+    if (root == nullptr)
+        return;
+
+    inOrder(root->left, v);
+    v.push_back(root->data);
+    inOrder(root->right, v);
+}
+bool isValidBST(BstNode *root)
+{
+    // since inorder traversal of bst gives ascending order, store all nodes in vector
+    // check if vector is sorted
+    //  o(N) time complexity
+    vector<int> v{};
+
+    inOrder(root, v);
+    for (int i{0}; i < v.size() - 1; i++)
+    {
+        if (v.at(i) > v.at(i + 1))
+            return false;
+    };
+
+    return true;
+}
+
 int main()
 {
     // initialize an empty binary tree
@@ -215,7 +246,9 @@ int main()
     // cout << endl;
     // cout << endl;
 
-    printLevelOrder(root);
+    // printLevelOrder(root);
+
+    cout << boolalpha << "\nis bst? " << isValidBST(root) << endl;
 
     system("pause");
     return 0;
