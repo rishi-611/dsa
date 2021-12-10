@@ -13,12 +13,15 @@ class MinHeap
 private:
     vector<int> heap;
     void swap(int a, int b);
+    void heapify(int);
 
 public:
     void insert(int val);
-    int minElem();
+    int getMin();
+    void pop();
 };
 
+// swaps two elements of heap
 void MinHeap::swap(int a, int b)
 {
     // swaps a and b elements in heap array
@@ -28,7 +31,28 @@ void MinHeap::swap(int a, int b)
     return;
 }
 
-int MinHeap::minElem()
+// for a given node, bubbles it down such that property of heap is recovered
+void MinHeap::heapify(int i)
+{
+    int curr{i}, left{2 * i + 1}, right{2 * i + 2};
+
+    // while curr is not the minimum of curr, left, right and curr is not a leaf node (no left or right), keep swapping curr with min
+    while ((left < heap.size() && right < heap.size()))
+    {
+        int minIndex = heap.at(curr) < heap.at(left) ? (heap.at(curr) < heap.at(right) ? curr : right) : (heap.at(left) < heap.at(right) ? left : right);
+        // if current is less than its left and right, heap property is already achieved
+        if (minIndex == curr)
+            return;
+        // otherwise swap curr with min
+        swap(curr, minIndex);
+
+        curr = minIndex;
+        left = 2 * curr + 1;
+        right = 2 * curr + 2;
+    }
+}
+
+int MinHeap::getMin()
 {
     for (const auto &val : heap)
     {
@@ -61,6 +85,19 @@ void MinHeap::insert(int val)
     return;
 }
 
+void MinHeap::pop()
+{
+    // if we just delete the root node, it will split the tree in two halves and and we'll have to shift all other elems
+    // so we first swap root with last elem, remove the last element ( hence min elem removed )
+    // then we bubble down the new topmost element, while bubbling up new minimum element, so that min heap property is regained
+    if (heap.size() == 0)
+        return;
+
+    swap(0, heap.size() - 1);
+    heap.pop_back();
+    heapify(0);
+}
+
 int main()
 {
     MinHeap h;
@@ -68,7 +105,14 @@ int main()
     for (const auto &val : vals)
         h.insert(val);
 
-    cout << h.minElem() << endl;
+    cout << h.getMin() << endl;
+
+    h.pop();
+    cout << h.getMin() << endl;
+    h.pop();
+    cout << h.getMin() << endl;
+    h.pop();
+    cout << h.getMin() << endl;
 
     system("pause");
     return 0;
