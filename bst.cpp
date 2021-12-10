@@ -17,6 +17,11 @@ void printLevelOrder(BstNode *root);
 void printLevHelper(BstNode *root, std::queue<BstNode *> q);
 bool isBst(BstNode *root);
 void inOrder(BstNode *root, vector<int> &v);
+BstNode *remove(BstNode *root, int data);
+BstNode *findElem(BstNode *root, int data);
+BstNode *findMaxElem(BstNode *root);
+void printAllPaths(BstNode *root);
+void printPathsHelper(BstNode *root, vector<int> &path);
 
 class BstNode
 {
@@ -40,6 +45,11 @@ public:
     friend void printLevHelper(BstNode *root, std::queue<BstNode *> q);
     friend bool isBst(BstNode *root);
     friend void inOrder(BstNode *root, vector<int> &v);
+    friend BstNode *remove(BstNode *root, int data);
+    friend BstNode *findElem(BstNode *root, int data);
+    friend BstNode *findMaxElem(BstNode *root);
+    friend void printAllPaths(BstNode *root);
+    friend void printPathsHelper(BstNode *root, vector<int> &path);
 
     int getData()
     {
@@ -85,6 +95,21 @@ bool search(BstNode *root, int data)
     return search(root->left, data);
 }
 
+// returns pointer to the found node
+BstNode *findElem(BstNode *root, int data)
+{
+    if (root == nullptr)
+        return root;
+    cout << root->data << endl;
+    if (data == root->data)
+        return root;
+
+    if (data > root->data)
+        return findElem(root->right, data);
+
+    return findElem(root->left, data);
+}
+
 int findMax(BstNode *root)
 {
     if (root == nullptr)
@@ -96,6 +121,20 @@ int findMax(BstNode *root)
     }
 
     return root->data;
+}
+
+// returns pointer to max element
+BstNode *findMaxElem(BstNode *root)
+{
+    if (root == nullptr)
+        return nullptr;
+
+    while (root->right != nullptr)
+    {
+        root = root->right;
+    }
+
+    return root;
 }
 
 int findMin(BstNode *root)
@@ -191,6 +230,8 @@ void inOrder(BstNode *root, vector<int> &v)
     v.push_back(root->data);
     inOrder(root->right, v);
 }
+
+// checks if a given binary tree is BST
 bool isValidBST(BstNode *root)
 {
     // since inorder traversal of bst gives ascending order, store all nodes in vector
@@ -208,12 +249,116 @@ bool isValidBST(BstNode *root)
     return true;
 }
 
+/*
+find the node with data
+if node is leaf (no left or right), just delete it
+if node has only one child, (left or right) then, connect its child, to its parent, and free the node
+if node has both left and right children:
+    find node in left subtree with max value
+    copy this value to the target node
+    delete the duplicate node (since its max, it will always be at extreme right, so it will have at 0 or 1 child)
+    this will work as all nodes in left subtree will be lower than target, and if target is replaced by the node just smaller than it, then bst properties will still hold
+same can be done with right subtree, but then we will have to find min of right subtree
+ */
+BstNode *remove(BstNode *root, int data)
+{
+    if (root == nullptr)
+        return root;
+
+    else if (data > root->data)
+    {
+        // deletion will take place is right subtree
+        root->right = remove(root->right, data);
+    }
+
+    else if (data < root->data)
+    {
+        root->left = remove(root->left, data);
+    }
+
+    // otherwise we have found the node to be deleted
+    else if (root->left == nullptr && root->right == nullptr)
+    {
+        delete root;
+        root = nullptr; // only the memory at which root was pointing is freed, root still holds its address, so need to make it null
+    }
+    else if (root->right == nullptr)
+    {
+        BstNode *temp = root;
+        root = root->left;
+        delete temp;
+    }
+    else if (root->left == nullptr)
+    {
+        BstNode *temp = root;
+        root = root->right;
+        delete temp;
+    }
+    else
+    {
+
+        BstNode *temp = findMaxElem(root->left);
+        root->data = temp->data;
+
+        // then delete that element from left subtree
+        root->left = remove(root, root->data);
+    }
+
+    return root;
+}
+
+void printPathsHelper(BstNode *root, vector<int> &path)
+{
+    if (root == nullptr)
+        return;
+
+    // cout << root->data << endl;
+
+    // print vec when a leaf node is reached
+    if (root->left == nullptr && root->right == nullptr)
+    {
+        // path.push_back(root->data);
+        cout << "leaf: " << root->data << endl;
+        cout << path.size() << endl;
+        // for (const auto &elem : path)
+        // {
+        //     cout << elem << " ";
+        // }
+        // cout << root->data << endl;
+
+        return;
+    }
+
+    path.push_back(root->data);
+
+    printAllPaths(root->left);
+    printAllPaths(root->right);
+
+    path.pop_back();
+    return;
+}
+// general function (works for simple binary tree too)
+// prints all path from root to leaf
+void printAllPaths(BstNode *root)
+{
+    vector<int> path{};
+
+    printPathsHelper(root, path);
+}
+
 int main()
 {
     // initialize an empty binary tree
     BstNode *root = nullptr;
 
     vector<int> vals{5, 10, 1, 7, 1, 3, 6, 11};
+
+    /*
+                5
+        1       |        10
+     1     3    |      7     11
+                |   6
+     */
 
     for (auto num : vals)
     {
@@ -248,7 +393,14 @@ int main()
 
     // printLevelOrder(root);
 
-    cout << boolalpha << "\nis bst? " << isValidBST(root) << endl;
+    // cout << boolalpha << "\nis bst? " << isValidBST(root) << endl;
+
+    // remove(&root, 1);
+    // remove(&root, 7;
+    // root = remove(root, 6);
+    // printInorder(root);
+
+    printAllPaths(root);
 
     system("pause");
     return 0;

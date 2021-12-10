@@ -1,0 +1,19 @@
+{
+  "name": "cpp",
+  "version": "1.0.0",
+  "description": "to compile any cpp file present in root, \r from root =>",
+  "main": "index.js",
+  "scripts": {
+    "build": "g++ ${file}.cpp build -o build/${file}"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rishi-611/dsa.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/rishi-611/dsa/issues"
+  },
+  "homepage": "https://github.com/rishi-611/dsa#readme"
+}
