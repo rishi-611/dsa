@@ -16,10 +16,18 @@ private:
     void heapify(int);
 
 public:
+    MinHeap(int);
     void insert(int val);
     int getMin();
     void pop();
 };
+
+// constructor
+MinHeap::MinHeap(int defaultSize = 10)
+{
+    // allocate this much memory for vector to start with
+    heap.reserve(defaultSize);
+}
 
 // swaps two elements of heap
 void MinHeap::swap(int a, int b)
