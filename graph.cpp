@@ -51,12 +51,26 @@ bool Graph::addEdge(char start, char end)
     // for both vertices, add the other vertex in the neighbours list of that vertex
     int startInd{vertices[start]}, endInd{vertices[end]};
 
+    edges.at(startInd)->push_back(end);
+    edges.at(endInd)->push_back(start);
+
     return true;
 }
 
 int main()
 {
-    cout << "hello " << endl;
-    system("pause");
+    Graph g;
+    vector<char> vertices{'a', 'b', 'c', 'd', 'e'};
+    vector<vector<char>> edges{{'a', 'b'}, {'a', 'c'}, {'a', 'd'}, {'b', 'd'}, {'d', 'e'}, {'e', 'c'}};
+
+    for (const auto &l : vertices)
+        cout << g.addVertex(l) << endl;
+
+    cout << endl;
+
+    for (const auto &edge : edges)
+        cout << g.addEdge(edge[0], edge[1]) << endl;
+
+    std::system("pause");
     return 0;
 }
