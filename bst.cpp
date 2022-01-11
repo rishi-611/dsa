@@ -25,10 +25,11 @@ BstNode *findMaxElem(BstNode *root);
 void printAllPaths(BstNode *root);
 void printPathsHelper(BstNode *root, vector<int> &path);
 vector<vector<int>> InPrePost(BstNode *root);
+void rootToNodePath(BstNode *root, int target);
 
 class BstNode
 {
-private:
+public:
     int data;
     BstNode *left;
     BstNode *right;
@@ -54,6 +55,7 @@ public:
     friend void printAllPaths(BstNode *root);
     friend void printPathsHelper(BstNode *root, vector<int> &path);
     friend vector<vector<int>> InPrePost(BstNode *root);
+    friend void rootToNodePath(BstNode *root, int target);
 
     int getData()
     {
@@ -236,6 +238,10 @@ void inOrder(BstNode *root, vector<int> &v)
 }
 
 // prints pre, post and in, in a single iteration
+// if we are counting the visit for each node
+// a node is printed on first visit in preorder trav, then the left and right are called
+// node is printed in second visit in inorder trav, after we come back to it after visiting its left, we print it then we call its right
+// node is printed in third visit in postorder trav, after we have come back from left and right, we print it, and pop it out
 vector<vector<int>> InPrePost(BstNode *root)
 {
     vector<int> pre, post, in;
@@ -399,6 +405,63 @@ void printAllPaths(BstNode *root)
     printPathsHelper(root, path);
 }
 
+// for general binary tree
+bool rootToNodeHelper(BstNode *root, int target, vector<int> &res)
+{
+    if (!root)
+        return false; // exceeded tree bounds and target not found
+
+    res.push_back(root->data);
+
+    if (root->data == target)
+    {
+
+        return true;
+    }
+
+    // find in left
+    bool found{rootToNodeHelper(root->left, target, res)};
+    if (found)
+        return true; // found target in left tree, no need to go right
+    else
+    {
+        // not found in left, try finding in right
+        found = rootToNodeHelper(root->right, target, res);
+        // if not found in right also, this subtree has nothing to offer, pop the node we just added in res, as this in invalid path
+        if (found)
+        {
+            return true;
+        }
+        else
+        {
+            res.pop_back();
+            return false;
+        }
+    }
+}
+
+void rootToNodePath(BstNode *root, int target)
+{
+    vector<int> res;
+    if (!root)
+    {
+        cout << "tree is empty" << endl;
+        return;
+    }
+
+    bool isPresent{rootToNodeHelper(root, target, res)};
+
+    if (!isPresent)
+    {
+        cout << "target not found" << endl;
+    }
+    else
+    {
+        for (const auto &node : res)
+            cout << node << endl;
+    }
+}
+
 int main()
 {
     // initialize an empty binary tree
@@ -454,14 +517,16 @@ int main()
     // printInorder(root);
 
     // printAllPaths(root);
-    vector<vector<int>> traversals{InPrePost(root)};
+    // vector<vector<int>> traversals{InPrePost(root)};
 
-    for (auto &trav : traversals)
-    {
-        for (int &data : trav)
-            cout << data << " ";
-        cout << endl;
-    }
+    // for (auto &trav : traversals)
+    // {
+    //     for (int &data : trav)
+    //         cout << data << " ";
+    //     cout << endl;
+    // }
+
+    rootToNodePath(root, 25);
 
     system("pause");
     return 0;
