@@ -1,5 +1,6 @@
 #include <iostream>
 #include <list>
+#include <queue>
 #include <vector>
 #include <unordered_map>
 #include <iterator>
@@ -113,32 +114,8 @@ vector<char> Graph::dfs(char node)
     return nodes;
 }
 
-void Graph::bfsHelper(char node, vector<char> &nodes, unordered_map<char, bool> &visited)
-{
-    int nodeInd{getIndex(node)};
-
-    // base case
-    // if node already visited, exit
-    if (visited.find(node) != visited.end())
-        return;
-
-    // if given vertex is not found, return
-    if (nodeInd < 0 || nodeInd >= edges.size())
-        return;
-
-    // recursice case-> print the node, mark it visited
-    nodes.push_back(node);
-    visited[node] = true;
-
-    // and then traverse through its adjacent nodes list, and for each node in the list, call this function
-    for (auto it{edges.at(nodeInd)->begin()}; it != edges.at(nodeInd)->end(); it++)
-    {
-        bfsHelper(*it, nodes, visited);
-    }
-}
-
 // BREADTH FIRST TRAVERSAL
-// from a given character (node), traverse with depth first approach
+// from a given character (node), traverse with breadth first approach
 // return a vector of all traversed nodes
 vector<char> Graph::bfs(char node)
 {
@@ -147,7 +124,33 @@ vector<char> Graph::bfs(char node)
 
     // stores list of nodes that have been already visited
     unordered_map<char, bool> visited;
-    bfsHelper(node, nodes, visited);
+
+    // queue to implement bfs, similar to what we do in trees
+    queue<char> q;
+
+    // insert the first node in queue, and then start the iteraticve process
+    q.push(node);
+
+    while (!q.empty())
+    {
+        // if a node is already visited, just pop it, and move to next iteration (next node)
+        if (visited.find(q.front()) != visited.end())
+        {
+            q.pop();
+            continue;
+        }
+
+        // else, print the node, store all of its neighbors at the end of queue, mark it visited and pop it
+        nodes.push_back(q.front());
+        int nodeInd{getIndex(q.front())};
+
+        for (auto it{edges.at(nodeInd)->begin()}; it != edges.at(nodeInd)->end(); it++)
+        {
+            q.push(*it);
+        }
+        visited[q.front()] = true;
+        q.pop();
+    }
 
     return nodes;
 }
@@ -164,21 +167,31 @@ int main()
     vector<char> vertices{'a', 'b', 'c', 'd', 'e', 'f'};
     vector<vector<char>> edges{{'a', 'b'}, {'a', 'c'}, {'b', 'd'}, {'c', 'e'}, {'d', 'e'}, {'d', 'f'}};
 
+    // test insert vertices
     std::cout << "inserting vertices" << endl;
     for (const auto &l : vertices)
         std::cout << g.addVertex(l) << endl;
 
     std::cout << endl;
 
+    // test insert edges
     std::cout << "inserting edges" << endl;
     for (const auto &edge : edges)
         std::cout << g.addEdge(edge[0], edge[1]) << endl;
 
     std::cout << endl;
 
+    // test dfs traversal
     char node{'a'};
     std::cout << "dfs traversal from node: " << node << endl;
     vector<char> allNodes{g.dfs(node)};
+    for (const auto &l : allNodes)
+        std::cout << l << " ";
+    std::cout << endl;
+
+    // test bfs traversal
+    std::cout << "bfs traversal from node: " << node << endl;
+    allNodes = g.bfs(node);
     for (const auto &l : allNodes)
         std::cout << l << " ";
     std::cout << endl;

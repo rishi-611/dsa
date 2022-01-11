@@ -1,6 +1,8 @@
 #include <iostream>
 #include <algorithm>
 #include <iomanip>
+#include <vector>
+#include <stack>
 #include <limits.h>
 #include <queue>
 using namespace std;
@@ -22,6 +24,7 @@ BstNode *findElem(BstNode *root, int data);
 BstNode *findMaxElem(BstNode *root);
 void printAllPaths(BstNode *root);
 void printPathsHelper(BstNode *root, vector<int> &path);
+vector<vector<int>> InPrePost(BstNode *root);
 
 class BstNode
 {
@@ -50,6 +53,7 @@ public:
     friend BstNode *findMaxElem(BstNode *root);
     friend void printAllPaths(BstNode *root);
     friend void printPathsHelper(BstNode *root, vector<int> &path);
+    friend vector<vector<int>> InPrePost(BstNode *root);
 
     int getData()
     {
@@ -231,6 +235,55 @@ void inOrder(BstNode *root, vector<int> &v)
     inOrder(root->right, v);
 }
 
+// prints pre, post and in, in a single iteration
+vector<vector<int>> InPrePost(BstNode *root)
+{
+    vector<int> pre, post, in;
+
+    if (!root)
+        return {};
+    stack<pair<BstNode *, int>> s; // key->root data, val-> visits on that node
+
+    BstNode *curr{root};
+    while (curr || !s.empty())
+    {
+
+        if (curr == nullptr)
+        {
+            pair<BstNode *, int> top{s.top()};
+            s.pop();
+            if (top.second == 1)
+            {
+                cout << top.first->data << " 2nd visit" << endl;
+                // means we are visiting the node for second time now
+                in.push_back(top.first->data); // inorder res gets updated on second visit
+                top.second = 2;
+                s.push(top); // since we have visited this node, update visit counter
+
+                // since it was the second visit, now we can move right
+                curr = top.first->right;
+            }
+            else
+            {
+                cout << top.first->data << " 3rd visit" << endl;
+                // means we are visiting the node for 3rd time now
+                post.push_back(top.first->data);
+                // since it is 3rd visit, just print in post, and pop the top, so that we can traverse back to top
+            }
+
+            continue;
+        }
+        cout << curr->data << " 1st visit" << endl;
+        // curr visits all nodes for only 1 time
+        std::pair<BstNode *, int> p{curr, 1}; // 1st visits for this node
+        pre.push_back(curr->data);            // on fist visit, push root data in inorder res
+        s.push(p);
+        curr = curr->left;
+    }
+    vector<vector<int>> res{pre, in, post};
+    return res;
+}
+
 // checks if a given binary tree is BST
 bool isValidBST(BstNode *root)
 {
@@ -351,7 +404,7 @@ int main()
     // initialize an empty binary tree
     BstNode *root = nullptr;
 
-    vector<int> vals{5, 10, 1, 7, 1, 3, 6, 11};
+    vector<int> vals{10, 5, 15, 2, 7, 12, 18};
 
     /*
                 5
@@ -400,7 +453,15 @@ int main()
     // root = remove(root, 6);
     // printInorder(root);
 
-    printAllPaths(root);
+    // printAllPaths(root);
+    vector<vector<int>> traversals{InPrePost(root)};
+
+    for (auto &trav : traversals)
+    {
+        for (int &data : trav)
+            cout << data << " ";
+        cout << endl;
+    }
 
     system("pause");
     return 0;
